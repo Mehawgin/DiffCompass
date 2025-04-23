@@ -1,0 +1,81 @@
+//////////////////////////////////////////////////////////////////////////////////	 
+//本程序只供学习使用，未经作者许可，不得用于其它任何用途
+//测试硬件：单片机STM32F103RCT6,正点原子MiniSTM32开发板,主频72MHZ，晶振12MHZ
+//QDtech-TFT液晶驱动 for STM32 IO模拟
+//xiao冯@ShenZhen QDtech co.,LTD
+//公司网站:www.qdtft.com
+//淘宝网站：http://qdtech.taobao.com
+//wiki技术网站：http://www.lcdwiki.com
+//我司提供技术支持，任何技术问题欢迎随时交流学习
+//固话(传真) :+86 0755-23594567 
+//手机:15989313508（冯工） 
+//邮箱:lcdwiki01@gmail.com    support@lcdwiki.com    goodtft@163.com 
+//技术支持QQ:3002773612  3002778157
+//技术交流QQ群:324828016
+//创建日期:2018/08/22
+//版本：V1.0
+//版权所有，盗版必究。
+//Copyright(C) 深圳市全动电子技术有限公司 2018-2028
+//All rights reserved
+/****************************************************************************************************
+//=========================================电源接线================================================//
+//     LCD模块                STM32单片机
+//      VCC          接          3.3V         //电源
+//      GND          接          GND          //电源地
+//=======================================液晶屏数据线接线==========================================//
+//本模块默认数据总线类型为4线制SPI总线
+//     LCD模块                STM32单片机    
+//       SDA         接          PB15         //液晶屏SPI总线数据写信号
+//=======================================液晶屏控制线接线==========================================//
+//     LCD模块 					      STM32单片机 
+//       BLK         接          PB9          //液晶屏背光控制信号，如果不需要控制，接3.3V
+//       SCL         接          PB13         //液晶屏SPI总线时钟信号
+//       DC          接          PB10         //液晶屏数据/命令控制信号
+//       RES         接          PB12         //液晶屏复位控制信号
+//       CS          接          PB11         //液晶屏片选控制信号
+//=========================================触摸屏触接线=========================================//
+//模块不带触摸功能，不需要进行触摸屏接线
+**************************************************************************************************/	
+ /* @attention
+  *
+  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
+  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
+  * TIME. AS A RESULT, QD electronic SHALL NOT BE HELD LIABLE FOR ANY
+  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
+  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
+  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+**************************************************************************************************/		
+#include "spi.h"
+
+void SPI_GPIO_Init(void)
+{
+	GPIO_InitTypeDef  GPIO_InitStructure;	      
+	RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOB ,ENABLE);	//使能GPIOB时钟
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13| GPIO_Pin_15; //GPIOB6,7,8,9
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;   //推挽输出
+	GPIO_Init(GPIOB, &GPIO_InitStructure);//初始化
+	GPIO_SetBits(GPIOB,GPIO_Pin_13| GPIO_Pin_15);	
+}
+
+/*****************************************************************************
+ * @name       :void  SPI_WriteByte(u8 Data)
+ * @date       :2018-08-09 
+ * @function   :Write a byte of data using STM32's Software SPI
+ * @parameters :Data:Data to be written
+ * @retvalue   :None
+******************************************************************************/
+void SPI_WriteByte(u8 Data)
+{
+	unsigned char i=0;
+	for(i=8;i>0;i--)
+	{
+	  if(Data&0x80)	
+			SPI_MOSI_SET; //输出数据
+    else
+		  SPI_MOSI_CLR;
+      SPI_SCLK_CLR;       
+      SPI_SCLK_SET;
+      Data<<=1; 
+	}
+}

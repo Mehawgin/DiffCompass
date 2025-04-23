@@ -1,0 +1,8 @@
+SD_CS -- 22
+SDO/MISO -- 12
+LED-21
+SCK-14
+SDI/MOSI -- 13
+DC/RS --2
+RESET -- 27
+CS -- 15

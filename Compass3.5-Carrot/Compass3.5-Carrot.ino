@@ -1,0 +1,1035 @@
+#include <Arduino.h>
+#include <TFT_eSPI.h> 
+#include <SPI.h>
+#include "pic.h"
+#include "monster.h"
+#include "Stone.h"
+#include "Masa.h"
+#include "Ming.h"
+#include "NinthBall.h"
+
+
+//#include "LunarPhase_19960104.h"
+//#include "LunarPhase_19970329.h"
+//#include "LunarPhase_19970919.h"
+//#include "LunarPhase_20241012.h"
+//#include "LunarPhase_20241124.h"
+
+#include "Mayday_LunarPhase.h"
+
+//#include "meteor.h"
+//#include "ashin_nod.h"
+
+TFT_eSPI mylcd = TFT_eSPI(); 
+
+//define some colour values
+#define  BLACK   	0x0000
+#define BLUE    	0x001F
+#define RED     	0xF800
+#define GREEN   	0x07E0
+#define CYAN    	0x07FF
+#define MAGENTA 	0xF81F
+#define YELLOW  	0xFFE0
+#define WHITE   	0xFFFF
+
+/* 五月天颜色数据 */
+#define MONSTER   	0xD9C4
+#define ASHIN     	0xE374
+#define STONE     	0x1D47
+#define MASA      	0xF667
+#define MING      	0x2D3C
+
+/* 表情位置 */
+#define BASE_WIDTH 		72
+#define BASE_HEIGHT 	80
+/* 表情大小 */
+#define FACE_WIDTH 		95
+#define FACE_HEIGHT 	77
+
+
+
+//定义LED与按键管脚
+#define LED_BLUE 2
+#define KEY 9
+#define MODE_MAX_NUM 6
+
+
+struct Button 
+{
+    const uint8_t PIN;
+    uint32_t numberKeyPresses;
+    bool pressed;
+}; 
+
+Button button1 = {0, 6, false};
+
+
+//建立一个变量用来保存上次调用中断处理程序的时间，如果这个时间小于250毫秒则不再确认按下按钮。
+unsigned long button_time = 0;  
+unsigned long last_button_time = 0;
+
+//0:Ashin 1:Monster 2:Stone 3:Masa 4:Ming
+volatile int flag = 0;
+static bool first_time = 1;
+
+
+
+
+
+
+
+
+//clear screen
+void fill_screen_test()
+{
+  mylcd.fillScreen(BLACK);delay(500);  
+  mylcd.fillScreen(RED);delay(500); 
+  mylcd.fillScreen(GREEN);delay(500); 
+  mylcd.fillScreen(BLUE);delay(500); 
+  mylcd.fillScreen(BLACK);delay(500); 
+}
+
+/********************************************************************************/
+/********************************************************************************/
+/*************************************冠佑***************************************/
+/********************************************************************************/
+/********************************************************************************/
+void Ming_display()
+{
+  int i;
+
+  /* 冠佑转场 */
+  for (i = 11; i >= 0 ; i--)
+  {
+    mylcd.drawRect(20*i, 0, 20, 198, MING);
+    mylcd.fillRect(20*i, 0, 20, 198, MING);
+    delay(10);
+  }
+
+  /* 冠佑眨眼 */
+  mylcd.setSwapBytes(true);
+  mylcd.fillScreen(MING);
+  mylcd.pushImage(72, 70, 95, 77, Ming);
+  delay(500);
+  mylcd.pushImage(72, 70, 95, 77, Ming_Blink1);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Ming_Blink2);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Ming_Blink3);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Ming_Blink4);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Ming_Blink3);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Ming);
+  delay(30);
+
+  /* 冠佑点头 */
+  for (i = 0; i < 2; i++)
+  {
+    mylcd.pushImage(72, 70, 95, 77, Ming);
+    delay(40);
+    mylcd.drawRect(0, 127, 240, 20, MING);
+    mylcd.fillRect(0, 127, 240, 20, MING);
+    mylcd.pushImage(72, 50, 95, 77, Ming);
+    delay(40);
+    mylcd.drawRect(0, 107, 240, 20, MING);
+    mylcd.fillRect(0, 107, 240, 20, MING);
+    mylcd.pushImage(72, 30, 95, 77, Ming);
+    delay(40);
+    mylcd.drawRect(0, 87, 240, 20, MING);
+    mylcd.fillRect(0, 87, 240, 20, MING);
+    mylcd.pushImage(72, 10, 95, 77, Ming);
+    delay(40);
+    mylcd.drawRect(0, 10, 240, 20, MING);
+    mylcd.fillRect(0, 10, 240, 20, MING);
+    mylcd.pushImage(72, 30, 95, 77, Ming);
+    delay(40);
+    mylcd.drawRect(0, 30, 240, 20, MING);
+    mylcd.fillRect(0, 30, 240, 20, MING);
+    mylcd.pushImage(72, 50, 95, 77, Ming);
+    delay(40);
+    mylcd.drawRect(0, 50, 240, 20, MING);
+    mylcd.fillRect(0, 50, 240, 20, MING);
+    mylcd.pushImage(72, 70, 95, 77, Ming);
+    delay(40);
+    mylcd.drawRect(0, 70, 240, 20, MING);
+    mylcd.fillRect(0, 70, 240, 20, MING);
+    mylcd.pushImage(72, 90, 95, 77, Ming);
+    delay(40);
+    mylcd.drawRect(0, 90, 240, 20, MING);
+    mylcd.fillRect(0, 90, 240, 20, MING);
+    mylcd.pushImage(72, 110, 95, 77, Ming);
+    delay(40);
+    mylcd.drawRect(0, 167, 240, 20, MING);
+    mylcd.fillRect(0, 167, 240, 20, MING);
+    mylcd.pushImage(72, 90, 95, 77, Ming);
+    delay(40);
+    mylcd.drawRect(0, 147, 240, 20, MING);
+    mylcd.fillRect(0, 147, 240, 20, MING);
+    mylcd.pushImage(72, 70, 95, 77, Ming);
+    delay(40);
+  }
+  delay(500);
+
+  /* 冠佑眨眼 */
+  mylcd.pushImage(72, 70, 95, 77, Ming_Blink1);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Ming_Blink2);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Ming_Blink3);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Ming_Blink4);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Ming_Blink3);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Ming);
+  delay(30);
+  delay(1000);
+}
+
+/********************************************************************************/
+/********************************************************************************/
+/*************************************玛莎***************************************/
+/********************************************************************************/
+/********************************************************************************/
+void Masa_display()
+{
+  int i;
+  /* 玛莎转场 */
+  for (i = 11; i >= 0 ; i--)
+  {
+    mylcd.drawRect(20*i, 0, 20, 198, MASA);
+    mylcd.fillRect(20*i, 0, 20, 198, MASA);
+    delay(10);
+  }
+
+  /* 玛莎眨眼 */
+  mylcd.setSwapBytes(true);
+  mylcd.fillScreen(MASA);
+  mylcd.pushImage(72, 70, 95, 77, Masa);
+  delay(500);
+  mylcd.pushImage(72, 70, 95, 77, Masa_Blink1);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Masa_Blink2);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Masa_Blink3);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Masa_Blink4);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Masa_Blink3);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Masa);
+  delay(30);
+
+  /* 玛莎点头 */
+  for (i = 0; i < 2; i++)
+  {
+    mylcd.pushImage(72, 70, 95, 77, Masa);
+    delay(40);
+    mylcd.drawRect(0, 127, 240, 20, MASA);
+    mylcd.fillRect(0, 127, 240, 20, MASA);
+    mylcd.pushImage(72, 50, 95, 77, Masa);
+    delay(40);
+    mylcd.drawRect(0, 107, 240, 20, MASA);
+    mylcd.fillRect(0, 107, 240, 20, MASA);
+    mylcd.pushImage(72, 30, 95, 77, Masa);
+    delay(40);
+    mylcd.drawRect(0, 87, 240, 20, MASA);
+    mylcd.fillRect(0, 87, 240, 20, MASA);
+    mylcd.pushImage(72, 10, 95, 77, Masa);
+    delay(40);
+    mylcd.drawRect(0, 10, 240, 20, MASA);
+    mylcd.fillRect(0, 10, 240, 20, MASA);
+    mylcd.pushImage(72, 30, 95, 77, Masa);
+    delay(40);
+    mylcd.drawRect(0, 30, 240, 20, MASA);
+    mylcd.fillRect(0, 30, 240, 20, MASA);
+    mylcd.pushImage(72, 50, 95, 77, Masa);
+    delay(40);
+    mylcd.drawRect(0, 50, 240, 20, MASA);
+    mylcd.fillRect(0, 50, 240, 20, MASA);
+    mylcd.pushImage(72, 70, 95, 77, Masa);
+    delay(40);
+    mylcd.drawRect(0, 70, 240, 20, MASA);
+    mylcd.fillRect(0, 70, 240, 20, MASA);
+    mylcd.pushImage(72, 90, 95, 77, Masa);
+    delay(40);
+    mylcd.drawRect(0, 90, 240, 20, MASA);
+    mylcd.fillRect(0, 90, 240, 20, MASA);
+    mylcd.pushImage(72, 110, 95, 77, Masa);
+    delay(40);
+    mylcd.drawRect(0, 167, 240, 20, MASA);
+    mylcd.fillRect(0, 167, 240, 20, MASA);
+    mylcd.pushImage(72, 90, 95, 77, Masa);
+    delay(40);
+    mylcd.drawRect(0, 147, 240, 20, MASA);
+    mylcd.fillRect(0, 147, 240, 20, MASA);
+    mylcd.pushImage(72, 70, 95, 77, Masa);
+    delay(40);
+  }
+  delay(500);
+
+  /* 玛莎眨眼 */
+  mylcd.pushImage(72, 70, 95, 77, Masa_Blink1);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Masa_Blink2);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Masa_Blink3);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Masa_Blink4);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Masa_Blink3);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Masa);
+  delay(30);
+  delay(1000);
+}
+
+/********************************************************************************/
+/********************************************************************************/
+/*************************************石头***************************************/
+/********************************************************************************/
+/********************************************************************************/
+void Stone_display()
+{
+  int i;
+
+  /* 石头转场 */
+  for (i = 11; i >= 0 ; i--)
+  {
+    mylcd.drawRect(20*i, 0, 20, 198, STONE);
+    mylcd.fillRect(20*i, 0, 20, 198, STONE);
+    delay(10);
+  }
+
+  /* 石头眨眼 */
+  mylcd.setSwapBytes(true);
+  mylcd.fillScreen(STONE);
+  mylcd.pushImage(72, 70, 95, 77, Stone);
+  delay(500);
+  mylcd.pushImage(72, 70, 95, 77, Stone_Blink1);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Stone_Blink2);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Stone_Blink3);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Stone_Blink4);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Stone_Blink3);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Stone);
+  delay(30);
+
+  /* 石头点头 */
+  for (i = 0; i < 2; i++)
+  {
+    mylcd.pushImage(72, 70, 95, 77, Stone);
+    delay(40);
+    mylcd.drawRect(0, 127, 240, 20, STONE);
+    mylcd.fillRect(0, 127, 240, 20, STONE);
+    mylcd.pushImage(72, 50, 95, 77, Stone);
+    delay(40);
+    mylcd.drawRect(0, 107, 240, 20, STONE);
+    mylcd.fillRect(0, 107, 240, 20, STONE);
+    mylcd.pushImage(72, 30, 95, 77, Stone);
+    delay(40);
+    mylcd.drawRect(0, 87, 240, 20, STONE);
+    mylcd.fillRect(0, 87, 240, 20, STONE);
+    mylcd.pushImage(72, 10, 95, 77, Stone);
+    delay(40);
+    mylcd.drawRect(0, 10, 240, 20, STONE);
+    mylcd.fillRect(0, 10, 240, 20, STONE);
+    mylcd.pushImage(72, 30, 95, 77, Stone);
+    delay(40);
+    mylcd.drawRect(0, 30, 240, 20, STONE);
+    mylcd.fillRect(0, 30, 240, 20, STONE);
+    mylcd.pushImage(72, 50, 95, 77, Stone);
+    delay(40);
+    mylcd.drawRect(0, 50, 240, 20, STONE);
+    mylcd.fillRect(0, 50, 240, 20, STONE);
+    mylcd.pushImage(72, 70, 95, 77, Stone);
+    delay(40);
+    mylcd.drawRect(0, 70, 240, 20, STONE);
+    mylcd.fillRect(0, 70, 240, 20, STONE);
+    mylcd.pushImage(72, 90, 95, 77, Stone);
+    delay(40);
+    mylcd.drawRect(0, 90, 240, 20, STONE);
+    mylcd.fillRect(0, 90, 240, 20, STONE);
+    mylcd.pushImage(72, 110, 95, 77, Stone);
+    delay(40);
+    mylcd.drawRect(0, 167, 240, 20, STONE);
+    mylcd.fillRect(0, 167, 240, 20, STONE);
+    mylcd.pushImage(72, 90, 95, 77, Stone);
+    delay(40);
+    mylcd.drawRect(0, 147, 240, 20, STONE);
+    mylcd.fillRect(0, 147, 240, 20, STONE);
+    mylcd.pushImage(72, 70, 95, 77, Stone);
+    delay(40);
+  }
+  delay(500);
+
+  /* 石头眨眼 */
+  mylcd.pushImage(72, 70, 95, 77, Stone_Blink1);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Stone_Blink2);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Stone_Blink3);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Stone_Blink4);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Stone_Blink3);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Stone);
+  delay(30);
+  delay(1000);
+
+}
+/********************************************************************************/
+/********************************************************************************/
+/*************************************怪兽***************************************/
+/********************************************************************************/
+/********************************************************************************/
+void Monster_display()
+{
+  int i;
+
+  /* 怪兽转场 */
+  for (i = 11; i >= 0 ; i--)
+  {
+    mylcd.drawRect(20*i, 0, 20, 198, MONSTER);
+    mylcd.fillRect(20*i, 0, 20, 198, MONSTER);
+    delay(10);
+  }
+
+  /* 怪兽眨眼 */
+  mylcd.setSwapBytes(true);
+  mylcd.fillScreen(MONSTER);
+  mylcd.pushImage(72, 70, 95, 77, Monster);
+  delay(500);
+  mylcd.pushImage(72, 70, 95, 77, Monster_Blink1);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Monster_Blink2);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Monster_Blink3);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Monster_Blink4);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Monster_Blink3);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Monster);
+  delay(30);
+
+  /* 怪兽点头 */
+  for (i = 0; i < 2; i++)
+  {
+    mylcd.pushImage(72, 70, 95, 77, Monster);
+    delay(40);
+    mylcd.drawRect(0, 127, 240, 20, MONSTER);
+    mylcd.fillRect(0, 127, 240, 20, MONSTER);
+    mylcd.pushImage(72, 50, 95, 77, Monster);
+    delay(40);
+    mylcd.drawRect(0, 107, 240, 20, MONSTER);
+    mylcd.fillRect(0, 107, 240, 20, MONSTER);
+    mylcd.pushImage(72, 30, 95, 77, Monster);
+    delay(40);
+    mylcd.drawRect(0, 87, 240, 20, MONSTER);
+    mylcd.fillRect(0, 87, 240, 20, MONSTER);
+    mylcd.pushImage(72, 10, 95, 77, Monster);
+    delay(40);
+    mylcd.drawRect(0, 10, 240, 20, MONSTER);
+    mylcd.fillRect(0, 10, 240, 20, MONSTER);
+    mylcd.pushImage(72, 30, 95, 77, Monster);
+    delay(40);
+    mylcd.drawRect(0, 30, 240, 20, MONSTER);
+    mylcd.fillRect(0, 30, 240, 20, MONSTER);
+    mylcd.pushImage(72, 50, 95, 77, Monster);
+    delay(40);
+    mylcd.drawRect(0, 50, 240, 20, MONSTER);
+    mylcd.fillRect(0, 50, 240, 20, MONSTER);
+    mylcd.pushImage(72, 70, 95, 77, Monster);
+    delay(40);
+    mylcd.drawRect(0, 70, 240, 20, MONSTER);
+    mylcd.fillRect(0, 70, 240, 20, MONSTER);
+    mylcd.pushImage(72, 90, 95, 77, Monster);
+    delay(40);
+    mylcd.drawRect(0, 90, 240, 20, MONSTER);
+    mylcd.fillRect(0, 90, 240, 20, MONSTER);
+    mylcd.pushImage(72, 110, 95, 77, Monster);
+    delay(40);
+    mylcd.drawRect(0, 167, 240, 20, MONSTER);
+    mylcd.fillRect(0, 167, 240, 20, MONSTER);
+    mylcd.pushImage(72, 90, 95, 77, Monster);
+    delay(40);
+    mylcd.drawRect(0, 147, 240, 20, MONSTER);
+    mylcd.fillRect(0, 147, 240, 20, MONSTER);
+    mylcd.pushImage(72, 70, 95, 77, Monster);
+    delay(40);
+  }
+  delay(500);
+
+  /* 怪兽眨眼 */
+  mylcd.pushImage(72, 70, 95, 77, Monster_Blink1);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Monster_Blink2);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Monster_Blink3);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Monster_Blink4);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Monster_Blink3);
+  delay(30);
+  mylcd.pushImage(72, 70, 95, 77, Monster);
+  delay(30);
+  delay(1000);
+}
+
+
+
+
+
+
+
+
+/********************************************************************************/
+/********************************************************************************/
+/*************************************通用***************************************/
+/********************************************************************************/
+/********************************************************************************/
+void Universal_display(int Mayday)
+{
+	int i;
+	const unsigned short* Mayday_pic[5] = {0};
+
+	if (MONSTER == Mayday)
+	{
+		Mayday_pic[0] = &Monster[0];
+		Mayday_pic[1] = &Monster_Blink1[0];
+		Mayday_pic[2] = &Monster_Blink2[0];
+		Mayday_pic[3] = &Monster_Blink3[0];
+		Mayday_pic[4] = &Monster_Blink4[0];
+	}
+	else if (STONE == Mayday)
+	{
+		Mayday_pic[0] = &Stone[0];
+		Mayday_pic[1] = &Stone_Blink1[0];
+		Mayday_pic[2] = &Stone_Blink2[0];
+		Mayday_pic[3] = &Stone_Blink3[0];
+		Mayday_pic[4] = &Stone_Blink4[0];
+	}
+	else if (MASA == Mayday)
+	{
+		Mayday_pic[0] = &Masa[0];
+		Mayday_pic[1] = &Masa_Blink1[0];
+		Mayday_pic[2] = &Masa_Blink2[0];
+		Mayday_pic[3] = &Masa_Blink3[0];
+		Mayday_pic[4] = &Masa_Blink4[0];
+	}
+	else if (MING == Mayday)
+	{
+		
+		Mayday_pic[0] = &Ming[0];
+		Mayday_pic[1] = &Ming_Blink1[0];
+		Mayday_pic[2] = &Ming_Blink2[0];
+		Mayday_pic[3] = &Ming_Blink3[0];
+		Mayday_pic[4] = &Ming_Blink4[0];
+	}
+
+  if (first_time)
+  {
+    first_time = 0;
+    /* 转场 */
+    for (i = 11; i >= 0 ; i--)
+    {
+      mylcd.drawRect(20*i, 0, 20, 240, Mayday);
+      mylcd.fillRect(20*i, 0, 20, 240, Mayday);
+      delay(10);
+    }
+  }
+
+
+	/* 眨眼 */
+	mylcd.setSwapBytes(true);
+	//mylcd.fillScreen(Mayday);
+	mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[0]);
+	delay(500);
+	mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[1]);
+	delay(30);
+	mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[2]);
+	delay(30);
+	mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[3]);
+	delay(30);
+	mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[4]);
+	delay(30);
+	mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[3]);
+	delay(30);
+	mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[0]);
+	delay(30);
+
+  /* 点头 */
+	for (i = 0; i < 2; i++)
+	{
+		mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[0]);
+		delay(40);
+		mylcd.drawRect(0, FACE_HEIGHT + BASE_HEIGHT - 20, 240, 20, Mayday);
+		mylcd.fillRect(0, FACE_HEIGHT + BASE_HEIGHT - 20, 240, 20, Mayday);
+		mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT - 20, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[0]);
+		delay(40);
+		mylcd.drawRect(0, FACE_HEIGHT + BASE_HEIGHT - 40, 240, 20, Mayday);
+		mylcd.fillRect(0, FACE_HEIGHT + BASE_HEIGHT - 40, 240, 20, Mayday);
+		mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT - 40, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[0]);
+		delay(40);
+		mylcd.drawRect(0, FACE_HEIGHT + BASE_HEIGHT - 60, 240, 20, Mayday);
+		mylcd.fillRect(0, FACE_HEIGHT + BASE_HEIGHT - 60, 240, 20, Mayday);
+		mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT - 60, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[0]);
+		delay(40);
+		mylcd.drawRect(0, BASE_HEIGHT - 60, 240, 20, Mayday);
+		mylcd.fillRect(0, BASE_HEIGHT - 60, 240, 20, Mayday);
+		mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT - 40, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[0]);
+		delay(40);
+		mylcd.drawRect(0, BASE_HEIGHT - 40, 240, 20, Mayday);
+		mylcd.fillRect(0, BASE_HEIGHT - 40, 240, 20, Mayday);
+		mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT - 20, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[0]);
+		delay(40);
+		mylcd.drawRect(0, BASE_HEIGHT - 20, 240, 20, Mayday);
+		mylcd.fillRect(0, BASE_HEIGHT - 20, 240, 20, Mayday);
+		mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT -  0, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[0]);
+		delay(40);
+		mylcd.drawRect(0, BASE_HEIGHT, 240, 20, Mayday);
+		mylcd.fillRect(0, BASE_HEIGHT, 240, 20, Mayday);
+		mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT + 20, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[0]);
+		delay(40);
+		mylcd.drawRect(0, BASE_HEIGHT + 20, 240, 20, Mayday);
+		mylcd.fillRect(0, BASE_HEIGHT + 20, 240, 20, Mayday);
+		mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT + 40, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[0]);
+		delay(40);
+		mylcd.drawRect(0, FACE_HEIGHT + BASE_HEIGHT + 20, 240, 20, Mayday);
+		mylcd.fillRect(0, FACE_HEIGHT + BASE_HEIGHT + 20, 240, 20, Mayday);
+		mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT + 20, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[0]);
+		delay(40);
+		mylcd.drawRect(0, FACE_HEIGHT + BASE_HEIGHT, 240, 20, Mayday);
+		mylcd.fillRect(0, FACE_HEIGHT + BASE_HEIGHT, 240, 20, Mayday);
+		mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT +  0, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[0]);
+		delay(40);
+	}
+	delay(500);
+
+  /* 眨眼 */
+  mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[1]);
+  delay(30);
+  mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[2]);
+  delay(30);
+  mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[3]);
+  delay(30);
+  mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[4]);
+  delay(30);
+  mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[3]);
+  delay(30);
+  mylcd.pushImage(BASE_WIDTH, BASE_HEIGHT, FACE_WIDTH, FACE_HEIGHT, Mayday_pic[0]);
+  delay(30);
+  delay(1000);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/********************************************************************************/
+/********************************************************************************/
+/*************************************阿信***************************************/
+/********************************************************************************/
+/********************************************************************************/
+void ashin_display()
+{
+  int i;
+  /* 阿信转场 */
+  /*
+  for (i = 11; i >= 0 ; i--)
+  {
+    mylcd.drawRect(20*i, 0, 20, 198, ASHIN);
+    mylcd.fillRect(20*i, 0, 20, 198, ASHIN);    
+    delay(10);
+  }*/
+
+  mylcd.fillScreen(ASHIN);
+
+  mylcd.drawEllipse(90, 100, 20, 30, WHITE);
+  mylcd.fillEllipse(90, 100, 20, 30, WHITE);
+
+  mylcd.drawEllipse(150, 100, 20, 30, WHITE);
+  mylcd.fillEllipse(150, 100, 20, 30, WHITE);
+
+  mylcd.drawCircle(145, 100, 15, 0x14FB);
+  mylcd.fillCircle(145, 100, 15, 0x14FB);
+
+  mylcd.drawCircle(95, 100, 15, 0x14FB);
+  mylcd.fillCircle(95, 100, 15, 0x14FB);
+
+
+  mylcd.drawRect(70, 150, 46, 18, WHITE);
+  mylcd.fillRect(70, 150, 46, 18, WHITE);
+  mylcd.pushImage(70, 150, 46, 18, mouth);
+  delay(5000);
+}
+
+
+void meteor_display()
+{
+  int i,delay_time = 100;
+  char meteor[16];
+  mylcd.setSwapBytes(true);
+  mylcd.fillScreen(0x0000);
+
+
+  mylcd.pushImage(0, 85, 37, 70, meteor_6_meitu);
+  delay(delay_time);
+
+  mylcd.pushImage(80, 85, 37, 70, meteor_6_meitu);
+  mylcd.pushImage(0, 85, 80, 70, meteor_5_meitu);
+  delay(delay_time);
+
+  mylcd.pushImage(80*2, 85, 37, 70, meteor_6_meitu);
+  mylcd.pushImage(80, 85, 80, 70, meteor_5_meitu);
+  mylcd.pushImage(0, 85, 80, 70, meteor_4_meitu);
+  delay(delay_time);
+
+  mylcd.pushImage(80*2, 85, 80, 70, meteor_5_meitu);
+  mylcd.pushImage(80, 85, 80, 70, meteor_4_meitu);
+  mylcd.pushImage(0, 85, 80, 70, meteor_3_meitu);
+  delay(delay_time);
+
+  mylcd.pushImage(80*2, 85, 80, 70, meteor_4_meitu);
+  mylcd.pushImage(80, 85, 80, 70, meteor_3_meitu);
+  mylcd.pushImage(0, 85, 80, 70, meteor_2_meitu);
+  delay(delay_time);
+
+  mylcd.pushImage(80*2, 85, 80, 70, meteor_3_meitu);
+  mylcd.pushImage(80, 85, 80, 70, meteor_2_meitu);
+  mylcd.pushImage(0, 85, 80, 70, meteor_1_meitu);
+  delay(delay_time);
+
+  mylcd.pushImage(80*2, 85, 80, 70, meteor_2_meitu);
+  mylcd.pushImage(80, 85, 80, 70, meteor_1_meitu);
+  mylcd.drawRect(0, 85, 80, 70, BLACK);
+  mylcd.fillRect(0, 85, 80, 70, BLACK);
+  delay(delay_time);
+
+  mylcd.pushImage(80*2, 85, 80, 70, meteor_1_meitu);
+  mylcd.drawRect(0, 85, 160, 70, BLACK);
+  mylcd.fillRect(0, 85, 160, 70, BLACK);
+  delay(delay_time);
+
+  mylcd.drawRect(0, 85, 240, 70, BLACK);
+  mylcd.fillRect(0, 85, 240, 70, BLACK);
+  delay(delay_time);
+
+}
+
+
+
+void pic_display()
+{
+  int i = 0;
+  //mylcd.setSwapBytes(true);
+
+
+
+  if (first_time)
+  {
+    first_time = 0;
+
+    /* 阿信转场 */
+    for (i = 11; i >= 0 ; i--)
+    {
+      mylcd.drawRect(20*i, 0, 20, 240, ASHIN);
+      mylcd.fillRect(20*i, 0, 20, 240, ASHIN);    
+      delay(10);
+    }
+  }
+
+
+
+  /* 阿信眨眼 */
+  mylcd.setSwapBytes(true);
+  mylcd.fillScreen(ASHIN);
+  mylcd.pushImage(0, 0, 240, 198, ashin2);
+  delay(500);
+  mylcd.pushImage(0, 0, 240, 198, ashin_blink1);
+  delay(30);
+  mylcd.pushImage(0, 0, 240, 198, ashin_blink2);
+  delay(30);
+  mylcd.pushImage(0, 0, 240, 198, ashin_blink3);
+  delay(30);
+  mylcd.pushImage(0, 0, 240, 198, ashin_blink4);
+  delay(30);
+  mylcd.pushImage(0, 0, 240, 198, ashin_blink3);
+  delay(30);
+  mylcd.pushImage(0, 0, 240, 198, ashin2);
+  delay(30);
+
+  delay(500);
+
+  /* 阿信点头 */
+  for (i = 0; i < 2; i++)
+  {
+    mylcd.pushImage(0, 0, 240, 198, ashin_bg);
+    mylcd.pushImage(0, 70, 240, 77, ashin_half);
+    delay(30);
+    mylcd.pushImage(0, 127, 240, 20, ashin_cover);
+    mylcd.pushImage(0, 50, 240, 77, ashin_half);
+    delay(30);
+    mylcd.pushImage(0, 107, 240, 20, ashin_cover);
+    mylcd.pushImage(0, 30, 240, 77, ashin_half);
+    delay(30);
+    mylcd.pushImage(0, 87, 240, 20, ashin_cover);
+    mylcd.pushImage(0, 10, 240, 77, ashin_half);
+    delay(30);
+    mylcd.pushImage(0, 10, 240, 20, ashin_cover);
+    mylcd.pushImage(0, 30, 240, 77, ashin_half);
+    delay(30);
+    mylcd.pushImage(0, 30, 240, 20, ashin_cover);
+    mylcd.pushImage(0, 50, 240, 77, ashin_half);
+    delay(30);
+    mylcd.pushImage(0, 50, 240, 20, ashin_cover);
+    mylcd.pushImage(0, 70, 240, 77, ashin_half);
+    delay(30);
+    mylcd.pushImage(0, 70, 240, 20, ashin_cover);
+    mylcd.pushImage(0, 90, 240, 77, ashin_half);
+    delay(30);
+    mylcd.pushImage(0, 90, 240, 20, ashin_cover);
+    mylcd.pushImage(0, 110, 240, 77, ashin_half);
+    delay(30);
+    mylcd.pushImage(0, 167, 240, 20, ashin_cover);
+    mylcd.pushImage(0, 90, 240, 77, ashin_half);
+    delay(30);
+    mylcd.pushImage(0, 147, 240, 20, ashin_cover);
+    mylcd.pushImage(0, 70, 240, 77, ashin_half);
+    delay(30);
+  }
+  mylcd.pushImage(0, 0, 240, 198, ashin2);
+
+  /* 阿信眨眼 */
+  delay(500);
+  mylcd.pushImage(0, 0, 240, 198, ashin_blink1);
+  delay(30);
+  mylcd.pushImage(0, 0, 240, 198, ashin_blink2);
+  delay(30);
+  mylcd.pushImage(0, 0, 240, 198, ashin_blink3);
+  delay(30);
+  mylcd.pushImage(0, 0, 240, 198, ashin_blink4);
+  delay(30);
+  mylcd.pushImage(0, 0, 240, 198, ashin_blink3);
+  delay(30);
+  mylcd.pushImage(0, 0, 240, 198, ashin2);
+  delay(1000);
+
+}
+
+
+
+/* 初始化LED与按键管脚 */
+void key_init()
+{
+	pinMode(LED_BLUE,OUTPUT);
+//	设置KEY引脚为上拉输入
+	pinMode(KEY,INPUT_PULLUP);
+}
+
+/* 按键扫描函数 */
+void key_scan()
+{
+  if(digitalRead(KEY) == LOW)
+  {
+    //延时消抖
+    delay(5);
+    //如果仍为低电平，按键按下
+    if(digitalRead(KEY) == LOW)
+    {
+      flag++;
+      if (flag > MODE_MAX_NUM)
+      {
+        flag = 0;
+      }
+
+      mylcd.fillScreen(WHITE);
+      mylcd.pushImage(100, 135, 57, 107, Ding);
+      //每次按下，变换LED状态
+      digitalWrite(LED_BLUE,!digitalRead(LED_BLUE));
+      //等待按键松开
+      while(digitalRead(KEY) == LOW);
+    }
+  }
+} 
+
+int sync_time = 400;
+int lunar_time = 500;
+int black_time = sync_time * 3 + 150;
+void setup() 
+{
+	mylcd.init();
+	key_init();
+	//attachInterrupt(KEY, isr, FALLING);
+
+  mylcd.setSwapBytes(true);
+
+//1:Monster 2:Masa 3:Ashin 4:Ming 5:Stone
+  flag = 1;
+
+  if (1 == flag)                    //Monster
+  {
+    meteor_display();
+    delay(sync_time+20);
+    mylcd.fillScreen(WHITE);
+    delay(sync_time);
+
+    mylcd.pushImage(0, 0, 240, 240, A5_Stone19751211);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A4_Ming19730728);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A3_Ashin19751206);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A2_Masa19770425);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A1_Monster19761128);
+
+    delay(lunar_time * 10);
+  }
+  else if (2 == flag)               //Masa
+  {
+    mylcd.fillScreen(BLACK);
+    delay(sync_time);
+    meteor_display();
+    mylcd.fillScreen(WHITE);
+    delay(sync_time);
+    mylcd.pushImage(0, 0, 240, 240, A1_Monster19761128);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A5_Stone19751211);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A4_Ming19730728);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A3_Ashin19751206);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A2_Masa19770425);
+    delay(lunar_time * 10);
+  }
+  else if (3 == flag)               //Ashin
+  {
+    mylcd.pushImage(0, 0, 240, 240, NinthBall);
+    delay(black_time + 20);
+    mylcd.fillScreen(WHITE);
+    delay(sync_time);
+
+    mylcd.pushImage(0, 0, 240, 240, A2_Masa19770425);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A1_Monster19761128);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A5_Stone19751211);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A4_Ming19730728);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A3_Ashin19751206);
+    delay(lunar_time * 10);
+  }
+  else if(4 == flag)                //Ming
+  {
+    mylcd.fillScreen(BLACK);
+    delay(black_time + 40);
+    mylcd.fillScreen(WHITE);
+    delay(sync_time);
+
+    mylcd.pushImage(0, 0, 240, 240, A3_Ashin19751206);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A2_Masa19770425);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A1_Monster19761128);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A5_Stone19751211);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A4_Ming19730728);
+    delay(lunar_time * 10);
+  }
+  else if(5 == flag)                //Stone
+  {  
+    mylcd.fillScreen(BLACK);
+    delay(black_time + 40);
+    mylcd.fillScreen(WHITE);    
+    delay(sync_time);
+    
+    mylcd.pushImage(0, 0, 240, 240, A4_Ming19730728);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A3_Ashin19751206);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A2_Masa19770425);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A1_Monster19761128);
+    delay(lunar_time);
+    mylcd.pushImage(0, 0, 240, 240, A5_Stone19751211);
+    delay(lunar_time * 10);
+  }
+}
+
+
+void loop() 
+{
+	key_scan();
+	/* MAYDAY 5525 */
+  
+	if (3 == flag)
+	{
+		  pic_display();
+	}
+	else if (1 == flag)
+	{
+		Universal_display(MONSTER);    
+	}
+	else if (5 == flag)
+	{
+//		Stone_display();
+		Universal_display(STONE);
+	}
+	else if (2 == flag)
+	{
+//		Masa_display();
+		Universal_display(MASA);
+	}
+	else if (4 == flag)
+	{
+		Universal_display(MING);
+//		Ming_display();
+	}
+	else if (6 == flag)
+	{
+		pic_display();
+		Universal_display(MONSTER);
+		Universal_display(STONE);
+		Universal_display(MASA);
+		Universal_display(MING);
+	}
+
+}
+
+
+
+
+
+
+

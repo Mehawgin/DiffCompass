@@ -1,0 +1,6 @@
+TFT_MISO -- 25
+TFT_SCLK -- 26
+TFT_MOSI -- 27
+TFT_DC -- 14
+TFT_RST -- 12
+TFT_CS -- 13

@@ -1,0 +1,8 @@
+屏幕--单片机
+RES -- 10
+CS -- 7
+DC -- 8
+SDA -- 6
+SCL -- 4
+VCC -- 5V
+GND -- GND

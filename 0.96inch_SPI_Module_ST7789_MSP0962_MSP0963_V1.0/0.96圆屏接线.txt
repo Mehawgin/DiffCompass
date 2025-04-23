@@ -1,0 +1,2 @@
+//                                    CS    DC     RES     SDA    SCL    BLK    VCC     GND    
+//ESP32-WROOM-32E:   15    2      27      13     14     21   5V/3.3V   GND   

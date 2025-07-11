@@ -1,5 +1,11 @@
-#define MJPEG_FILENAME "/new/CMZW_CENTER_10fps.mjpeg"
-#define MJPEG_BUFFER_SIZE (240 * 240 * 2 / 8)
+
+//#define LotusPlane_L1
+//#define LotusPlane_L2
+#define LotusPlane_C
+//#define LotusPlane_R2
+//#define LotusPlane_R1
+
+
 #include <WiFi.h>
 #include <FS.h>
 #include <SD.h>
@@ -10,39 +16,111 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-//Arduino_DataBus *bus = new Arduino_ESP32SPI(TFT_DC /* DC */, TFT_CS /* CS */, SCK, MOSI, MISO);
-// 在 TFT 初始化时降低 SPI 速率// ESP32引脚（非S3）
-#define SD_CS   	15
-#define MISO     	2
-#define SCK    		4  //SCL
-#define MOSI    	16  //SDA
-#define TFT_DC    17  // 屏幕DC引脚
-#define TFT_RST   5  // 屏幕复位
-#define TFT_CS    18  // 屏幕片选
-Arduino_DataBus *bus = new Arduino_HWSPI(TFT_DC, TFT_CS, SCK, MOSI, MISO);  // 40MHz → 20MHz
-Arduino_ST7796  *gfx = new Arduino_ST7796(bus, TFT_RST, 3, false);
+#ifdef LotusPlane_L1
+	#define MJPEG_FILENAME "/OAOA/LotusPlane_L1.mjpeg"
+	#define ROTATION 3
+
+	#define SD_CS   	13
+	#define MISO     	12
+	#define SCK    		14  //SCL
+	#define MOSI    	27  //SDA
+	#define TFT_DC    	26  // 屏幕DC引脚
+	#define TFT_RST   	25  // 屏幕复位
+	#define TFT_CS    	33  // 屏幕片选
+#endif
+#ifdef LotusPlane_L2
+	#define MJPEG_FILENAME "/OAOA/LotusPlane_L2.mjpeg"
+	#define ROTATION 3
+
+	#define SD_CS   	15
+	#define MISO     	2
+	#define SCK    		4  //SCL
+	#define MOSI    	16  //SDA
+	#define TFT_DC    	17  // 屏幕DC引脚
+	#define TFT_RST   	5  // 屏幕复位
+	#define TFT_CS    	18  // 屏幕片选
+#endif
+#ifdef LotusPlane_C
+	#define MJPEG_FILENAME "/OAOA/LotusPlane_C.mjpeg"
+	#define ROTATION 1
+
+	#define SD_CS   	15
+	#define MISO     	2
+	#define SCK    		4  //SCL
+	#define MOSI    	16  //SDA
+	#define TFT_DC    	17  // 屏幕DC引脚
+	#define TFT_RST   	5  // 屏幕复位
+	#define TFT_CS    	18  // 屏幕片选
+#endif
+#ifdef LotusPlane_R1
+	#define MJPEG_FILENAME "/OAOA/LotusPlane_R1.mjpeg"
+	#define ROTATION 1
+
+	#define SD_CS   	13
+	#define MISO     	12
+	#define SCK    		14  //SCL
+	#define MOSI    	27  //SDA
+	#define TFT_DC    	26  // 屏幕DC引脚
+	#define TFT_RST   	25  // 屏幕复位
+	#define TFT_CS    	33  // 屏幕片选
+#endif
+#ifdef LotusPlane_R2
+	#define MJPEG_FILENAME "/OAOA/LotusPlane_R2.mjpeg"
+	#define ROTATION 1
+
+	#define SD_CS   	13
+	#define MISO     	12
+	#define SCK    		14  //SCL
+	#define MOSI    	27  //SDA
+	#define TFT_DC    	26  // 屏幕DC引脚
+	#define TFT_RST   	25  // 屏幕复位
+	#define TFT_CS    	33  // 屏幕片选
+#endif
+
+
+//#define MJPEG_FILENAME "/new/CMZW_CENTER_10fps.mjpeg"
+//#define MJPEG_FILENAME "/new/CMZW_LEFT_10fps.mjpeg"
+//#define MJPEG_FILENAME "/new/CMZW_RIGHT_10fps.mjpeg"
+
+
+#define MJPEG_BUFFER_SIZE (240 * 240 * 2 / 8)
+
+
+// ESP32引脚（非S3）
+//#define SD_CS   	15
+//#define MISO     	2
+//#define SCK    		4  //SCL
+//#define MOSI    	16  //SDA
+//#define TFT_DC    17  // 屏幕DC引脚
+//#define TFT_RST   5  // 屏幕复位
+//#define TFT_CS    18  // 屏幕片选
+
+// ESP32引脚（microUSB）
+//#define SD_CS   	13
+//#define MISO     	12
+//#define SCK    		14  //SCL
+//#define MOSI    	27  //SDA
+//#define TFT_DC    26  // 屏幕DC引脚
+//#define TFT_RST   25  // 屏幕复位
+//#define TFT_CS    33  // 屏幕片选
+
+
+// ESP32-S3引脚
+//#define SD_CS   	38
+//#define MISO     	37
+//#define SCK    		36  		//SCL
+//#define MOSI    	35  		//SDA
+//#define TFT_DC    	42  		// 屏幕DC引脚
+//#define TFT_RST   	2			// 屏幕复位
+//#define TFT_CS    	1  			// 屏幕片选
+Arduino_DataBus *bus = new Arduino_ESP32SPI(TFT_DC, TFT_CS, SCK, MOSI, MISO); 
+//Arduino_DataBus *bus = new Arduino_HWSPI(TFT_DC, TFT_CS); 
+Arduino_ST7796  *gfx = new Arduino_ST7796(bus, TFT_RST, ROTATION, false);
 #include "MjpegClass.h"
 
 #define TFT_BRIGHTNESS 128
 #define LED_PIN     1  			// LED引脚
-#define KEY 		13			//按键引脚
-
-
-
-
-// ESP32-S3引脚
-//#define SD_CS   	4
-//#define MISO     	5
-//#define SCK    		6  		//SCL
-//#define MOSI    	7  		//SDA
-//#define TFT_DC    	15  	// 屏幕DC引脚
-//#define TFT_RST   	16		// 屏幕复位
-//#define TFT_CS    	17  	// 屏幕片选
-
-
-
-
-
+#define KEY 		23			//按键引脚
 
 static MjpegClass mjpeg;
 SPIClass MySPI(SPI);
@@ -53,9 +131,6 @@ int frame_count = 0;
 //建立一个变量用来保存上次调用中断处理程序的时间，如果这个时间小于250毫秒则不再确认按下按钮。
 unsigned long button_time = 0;  
 unsigned long last_button_time = 0;
-
-
-
 
 struct Button 
 {
@@ -206,6 +281,8 @@ void setup()
 {
 	WiFi.mode(WIFI_OFF);
 	Serial.begin(115200);
+	Serial.printf("SPI1默认引脚: MOSI=%d, MISO=%d, SCLK=%d\n", MOSI, MISO, SCK);
+	//bus->beginTransaction(80000000); // 80MHz
 	
 	//LED引脚初始化
 	//pinMode(LED_PIN, OUTPUT);
@@ -253,6 +330,8 @@ void loop()
 			mjpeg.drawJpg();
 			frame_count ++;
 			key_scan();
+
+			while((millis() - last_ms) <= 200);
 		}
 
 		int time_used = millis() - start_ms;

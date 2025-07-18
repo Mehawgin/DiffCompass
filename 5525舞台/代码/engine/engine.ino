@@ -191,7 +191,7 @@ Button button1 = {0, 0, false};
 
 void engine()
 {
-  int speed = 5;
+  int speed = 10;
 	mylcd.setSwapBytes(true);
 	mylcd.pushImage(0, 0, 240, 198, engine1);
 	delay(speed);

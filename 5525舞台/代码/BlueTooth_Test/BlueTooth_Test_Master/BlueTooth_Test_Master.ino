@@ -4,7 +4,15 @@
 #include <BLEAdvertisedDevice.h>
 #include <BLEAddress.h>
 
-#define   KEY 		    5			//按键引脚
+#define   KEY_5 		    5			//输出引脚
+#define   KEY_6 		    6			//输出引脚
+#define   KEY_7 		    7			//输出引脚
+#define   KEY_8 		    8			//输出引脚
+#define   KEY_10 		    10			//输出引脚
+#define   KEY_20 		    20			//输出引脚
+#define   KEY_21 		    21			//输出引脚
+
+
 #define   KEY_BOOT 		9			//按键引脚
 
 // 同从机的 UUID
@@ -30,11 +38,25 @@ void key_scan()
     //如果仍为低电平，按键按下
     if(digitalRead(KEY_BOOT) == LOW)
     {		
-	  		Serial.println("Botton pressed！");
+		Serial.println("Botton pressed！");
 
-        digitalWrite(KEY, LOW);
-			  delay(1000);
-			  digitalWrite(KEY, HIGH);
+		digitalWrite(KEY_5, LOW);
+		digitalWrite(KEY_6, LOW);
+		digitalWrite(KEY_7, LOW);
+		digitalWrite(KEY_8, LOW);
+		digitalWrite(KEY_10, LOW);
+		digitalWrite(KEY_20, LOW);
+		digitalWrite(KEY_21, LOW);
+		delay(500);
+		digitalWrite(KEY_5, HIGH);
+		digitalWrite(KEY_6, HIGH);
+		digitalWrite(KEY_7, HIGH);
+		digitalWrite(KEY_8, HIGH);
+		digitalWrite(KEY_10, HIGH);
+		digitalWrite(KEY_20, HIGH);
+		digitalWrite(KEY_21, HIGH);
+
+			  
       //等待按键松开
       while(digitalRead(KEY_BOOT) == LOW);
     }
@@ -139,9 +161,21 @@ void setup()
 	//LED引脚初始化
 	//pinMode(LED_PIN, OUTPUT);
 
-	pinMode(KEY,OUTPUT);	
-  pinMode(KEY_BOOT,INPUT_PULLUP);  
-  digitalWrite(KEY, LOW);
+	pinMode(KEY_5,OUTPUT);	
+	pinMode(KEY_6,OUTPUT);	
+	pinMode(KEY_7,OUTPUT);	
+	pinMode(KEY_8,OUTPUT);	
+	pinMode(KEY_10,OUTPUT);	
+	pinMode(KEY_20,OUTPUT);	
+	pinMode(KEY_21,OUTPUT);	
+  	pinMode(KEY_BOOT,INPUT_PULLUP);  
+  	digitalWrite(KEY_5, LOW);
+  	digitalWrite(KEY_6, LOW);
+  	digitalWrite(KEY_7, LOW);
+  	digitalWrite(KEY_8, LOW);
+  	digitalWrite(KEY_10, LOW);
+  	digitalWrite(KEY_20, LOW);
+  	digitalWrite(KEY_21, LOW);
 
 	//蓝牙初始化
 	BT_init();

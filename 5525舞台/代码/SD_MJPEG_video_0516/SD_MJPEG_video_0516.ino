@@ -1,4 +1,6 @@
-#define MJPEG_FILENAME "/new/CMZW_CENTER_10fps.mjpeg"
+//#define MJPEG_FILENAME "/new/CMZW_CENTER_10fps.mjpeg"
+#define MJPEG_FILENAME "/new/CMZW_RIGHT_10fps.mjpeg"
+
 #define MJPEG_BUFFER_SIZE (240 * 240 * 2 / 8)
 #include <WiFi.h>
 #include <FS.h>
@@ -20,7 +22,7 @@
 #define TFT_RST   5  // 屏幕复位
 #define TFT_CS    18  // 屏幕片选
 Arduino_DataBus *bus = new Arduino_HWSPI(TFT_DC, TFT_CS, SCK, MOSI, MISO);  // 40MHz → 20MHz
-Arduino_ST7796  *gfx = new Arduino_ST7796(bus, TFT_RST, 3, false);
+Arduino_ST7796  *gfx = new Arduino_ST7796(bus, TFT_RST, 1, false);
 #include "MjpegClass.h"
 
 #define TFT_BRIGHTNESS 128
